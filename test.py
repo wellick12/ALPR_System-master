@@ -2,7 +2,6 @@ import cv2
 import time
 import threading
 import json
-import requests
 from class_CNN import NeuralNetwork
 from class_PlateDetection import PlateDetector
 from utils.average_plate import *
@@ -45,14 +44,14 @@ def recognized_plate(list_char_on_plate, size):
         plate, len_plate = myNetwork.label_image_list(segmented_characters[1], size)
         plates_value.append(plate)
         plates_length.append(len_plate)
-        
+
     final_plate = get_average_plate_value(plates_value, plates_length) # calculates the average plate
     if len(final_plate) > 7:
         if (final_plate[2] == '8'):
             final_plate = final_plate[:2] + 'B' + final_plate[3:]
         elif (final_plate[2] == '0'):
             final_plate = final_plate[:2] + 'D' + final_plate[3:]
-    recog_plate = final_plate  
+    recog_plate = final_plate
 
     print("recognized plate: " + final_plate)
     if final_plate != None:
@@ -66,11 +65,11 @@ def recognized_plate(list_char_on_plate, size):
         data_json = json.dumps(data)
 
         payload = {'json_payload': data_json}
-        r = requests.post(url='http://localhost:8080/remote', json=data)
+        # r = requests.post(url='http://localhost:8080/remote', json=data)
 
     print("threading time: " + str(time.time() - t0))
 
-cap = cv2.VideoCapture('test_videos/local.mp4') # video path
+cap = cv2.VideoCapture('test_videos/data/cars.mp4') # video path
 
 if __name__=="__main__":
     while(cap.isOpened()):
@@ -91,7 +90,7 @@ if __name__=="__main__":
         cv2.putText(_frame, recog_plate, (20, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv2.LINE_AA)
         # out.write(_frame)
         cv2.imshow('video', _frame)
-        
+
         possible_plates = plateDetector.find_possible_plates(cropped_frame)
         # cv2.imshow('morphed', plateDetector.after_preprocess)
         if possible_plates is not None:
@@ -100,7 +99,7 @@ if __name__=="__main__":
             coordinates = plateDetector.corresponding_area[0] # get the coordinate of the detected plate
             if (distance < 100):
                 if(countPlates < countPlates_threshold):
-                    cv2.imshow('Plate', possible_plates[0])
+                    cv2.imshow('Plate Picked', possible_plates[0])
                     temp = []
                     temp.append(possible_plates[0])
                     temp.append(plateDetector.char_on_plate[0]) # temp = [image of plate, segmented characters on plate]

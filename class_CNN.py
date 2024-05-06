@@ -31,26 +31,25 @@ class NeuralNetwork():
   def __init__(self, modelFile, labelFile):
     self.model_file = modelFile
     self.label_file = labelFile
-    
+
     self.label = self.load_labels(self.label_file)
     self.graph = self.load_graph(self.model_file)
-    self.sess = tf.compat.v1.Session(graph=self.graph)
+    self.sess = tf.Session(graph=self.graph)
 
 
   def load_graph(self, modelFile):
     graph = tf.Graph()
+    graph_def = tf.GraphDef()
+    with open(modelFile, "rb") as f:
+      graph_def.ParseFromString(f.read())
     with graph.as_default():
-      graph_def = tf.compat.v1.GraphDef()
-      with tf.io.gfile.GFile(modelFile, 'rb') as f:
-        graph_def.ParseFromString(f.read())  # Parse the protobuf file
-        tf.import_graph_def(graph_def, name='')  # Import graph definition into the current graph
-
+      tf.import_graph_def(graph_def)
     return graph
 
 
   def load_labels(self, labelFile):
     label = []
-    proto_as_ascii_lines = tf.io.gfile.GFile(labelFile).readlines()
+    proto_as_ascii_lines = tf.gfile.GFile(labelFile).readlines()
     for l in proto_as_ascii_lines:
       label.append(l.rstrip())
     return label
@@ -78,12 +77,12 @@ class NeuralNetwork():
     output_operation = self.graph.get_operation_by_name(output_name);
 
     results = self.sess.run(output_operation.outputs[0],
-                      {input_operation.outputs[0]: tensor})
+                            {input_operation.outputs[0]: tensor})
     results = np.squeeze(results)
     labels = self.label
     top_k = results.argsort()[-1:][::-1]
     return labels[top_k[0]]
-    
+
 
   def label_image_list(self, listImages, imageSizeOuput):
     plate = ""

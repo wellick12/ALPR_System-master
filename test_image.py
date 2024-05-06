@@ -13,9 +13,9 @@ plateDetector = PlateDetector(type_of_plate='RECT_PLATE',
 myNetwork = NeuralNetwork(modelFile="model/binary_128_0.50_ver3.pb",
                             labelFile="model/binary_128_0.50_labels_ver2.txt")
 
-img = cv2.imread('test_videos/car2.jpg')
-cv2.imshow('original image', img)
-cv2.waitKey(0)
+img = cv2.imread('test_videos/data/9.jpg')
+# cv2.imshow('original image', img)
+# cv2.waitKey(0)
 possible_plates = plateDetector.find_possible_plates(img)
 if possible_plates is not None:
     for i, p in enumerate(possible_plates):
